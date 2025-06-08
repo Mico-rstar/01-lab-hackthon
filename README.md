@@ -18,19 +18,34 @@
 
 ## 说明
 
-没时间写详细文档了呜呜呜
+### 目录结构
+```plaintext
+docs
+|
+|-----lab-fs.md
+|
+|-----lab-cow.md
+|
+|-----lab-traps.md
 
+README.md
+```
+
+### 分支
 ```C
 // lab:traps
 git checkout traps
+// test
 bttest
 alarmtest
 
 // lab:cow
 git checkout cow
+// test
 cowtest
 
 // lab: fs
 git checkout fs
+// test
 bigfile
 ```
