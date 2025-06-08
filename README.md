@@ -17,6 +17,10 @@
 [Lab fs: File system](https://pdos.csail.mit.edu/6.828/2022/labs/fs.html)：完成了bigfile
 
 ## 说明
+### 测试项目
+```lang
+git clone https://github.com/Mico-rstar/01-lab-hackthon.git
+```
 
 ### 目录结构
 ```plaintext
