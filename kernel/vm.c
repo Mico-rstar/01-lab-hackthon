@@ -336,6 +336,40 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
   return -1;
 }
 
+// this method can only use when (*pte & PTE_COW) != 0
+// unmap the old mapping
+// alloc a new writable page for va, 
+// and map the new page to pgtbl
+// return -1 while it is not a cow pte
+// return -0 while succeed
+int
+uvmcow(pagetable_t pgtbl, uint64 va)
+{
+  va = PGROUNDDOWN(va);
+  pte_t *pte;
+  if((pte = walk(pgtbl, va, 0)) == 0)
+      panic("uvmunmap: walk");
+  if((*pte) & PTE_COW)
+  {
+    uint64 pa = PTE2PA(*pte);
+    uint64 flags = PTE_FLAGS(*pte);
+    flags &= (~PTE_COW);
+    // alloc a new page
+    char *mem;
+    if((mem = kalloc()) == 0)
+      panic("uvmcow: not enough page");
+    memmove(mem, (char*)pa, PGSIZE);
+
+    uvmunmap(pgtbl, va, 1, 1);
+
+    mappages(pgtbl, va, 1, pa, flags);
+  } else
+  {
+    return -1;
+  }
+  return 0;
+}
+
 // mark a PTE invalid for user access.
 // used by exec for the user stack guard page.
 void
