@@ -78,7 +78,24 @@ usertrap(void)
 
   // give up the CPU if this is a timer interrupt.
   if(which_dev == 2)
+  {
+    struct proc *p = myproc();
+    p->nticks++;
+    if(p->ainterval != 0 && p->ainterval == p->nticks && p->tickstatus == 0)
+    {
+      // set the tickstatus = 1, imply handling
+      p->tickstatus = 1;
+
+      // store the trapframe in tickframe
+      p->tickframe = *(p->trapframe);
+
+      // alloc a new proc for the handle fn
+      p->trapframe->epc = (uint64)p->handler;
+      p->nticks = 0;
+      usertrapret();
+    }
     yield();
+  }
 
   usertrapret();
 }

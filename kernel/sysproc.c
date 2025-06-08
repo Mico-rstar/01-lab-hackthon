@@ -92,3 +92,30 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+uint64
+sys_sigalarm(void)
+{
+  struct proc *p = myproc();
+  argint(0, &(p->ainterval));
+  argaddr(1, (uint64*)&(p->handler));
+  p->nticks=0;
+  // printf("interval ticks = %d\n", p->ainterval);
+  // printf("handler addr = %p\n", p->handler);
+  return 0;
+}
+
+uint64
+sys_sigreturn(void)
+{
+  // store the value in a0
+  //uint64 a0;
+  struct proc *p = myproc();
+  // recover the context
+  *(p->trapframe) = p->tickframe;
+  
+  // set the tickstatus = 0, imply not in handle fn
+  p->tickstatus = 0;
+  return p->tickframe.a0;
+}
