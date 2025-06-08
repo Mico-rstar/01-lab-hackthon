@@ -195,3 +195,7 @@ void itrunc(struct inode *ip)
 ```
 
 
+## 测试结果
+![alt text](image-1.png)
+
+
