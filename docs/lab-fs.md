@@ -4,7 +4,7 @@ https://pdos.csail.mit.edu/6.828/2022/labs/fs.html
 
 ## 思路
 
-![alt text](image.png)
+![alt text](./assets/image.png)
 
 ## 代码
 **主要要修改bmap和itrunc函数**
@@ -196,6 +196,6 @@ void itrunc(struct inode *ip)
 
 
 ## 测试结果
-![alt text](image-1.png)
+![alt text](./assets/image-1.png)
 
 

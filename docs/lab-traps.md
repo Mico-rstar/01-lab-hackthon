@@ -4,12 +4,12 @@ https://pdos.csail.mit.edu/6.828/2022/labs/traps.html
 
 ## 思路
 ### backtrace
-![alt text](image-7.png)
+![alt text](./assets/image-7.png)
 s0寄存器保存了当前栈帧的fp，只需要格局栈帧排布图来计算ra和pre_fp相对于fp的偏移量，迭代到页表边界，即可把函数调用链输出。需要注意栈顶在低地址，栈底在高地址。
 
 ### alarm
 关键是理解陷入过程和回到用户空间的过程
-![alt text](image-9.png)
+![alt text](./assets/image-9.png)
 
 ## 代码
 ### backtrace
@@ -105,5 +105,5 @@ sys_sigreturn(void)
 
 
 ## 测试结果
-![alt text](image-4.png)
-![alt text](image-3.png)
+![alt text](./assets/image-4.png)
+![alt text](./assets/image-3.png)

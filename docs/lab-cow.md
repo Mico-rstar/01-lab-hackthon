@@ -3,7 +3,7 @@ https://pdos.csail.mit.edu/6.828/2022/labs/cow.html
 
 
 ## 思路
-![alt text](image-5.png)
+![alt text](./assets/image-5.png)
 1. fork时，直接将子进程页表映射到父进程的物理地址，将父子进程的写权限禁用，标记为cow页
 2. 进程写时，触发page fault后trap到内核，在usertrap中处理：
      - 如果是cow页，申请新物理页，将内容拷贝到新物理页，修改页表，标记为非cow页，断掉旧的映射（unmap）
@@ -54,7 +54,7 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
 ```
 
 在trap处理入口，处理page fault
-![alt text](image-6.png)
+![alt text](./assets/image-6.png)
 ```c
 // trap.c
 else if(r_scause() == 12 || r_scause() == 15 )
@@ -128,6 +128,6 @@ uvmcow(pagetable_t pgtbl, uint64 va)
 
 
 ## 测试结果
-![alt text](image-2.png)
+![alt text](./assets/image-2.png)
 
 
