@@ -50,6 +50,7 @@ index(uint64 pa)
   int res = (pa - rcnt.end_) / PGSIZE;
   if(res < 0 || res >= (PHYSTOP - KERNBASE)/PGSIZE)
   {
+    printf("pa = %p, index = %d\n", pa, res);
     panic("index: illegal index");
   }
   return res;
@@ -95,12 +96,12 @@ freerange(void *pa_start, void *pa_end)
 void
 kfree(void *pa)
 {
-  if(rcnt.cnt[index((uint64)pa)] > 1)
+  if(rcnt.cnt[index((uint64)pa)] >= 1)
   {
     decr((uint64)pa);
     return;
   }
-  else if(rcnt.cnt[index((uint64)pa)] <= 0)
+  else if(rcnt.cnt[index((uint64)pa)] < 0)
   {
     panic("kfree: unexpected ref cnt");
   }
@@ -122,7 +123,8 @@ kfree(void *pa)
   release(&kmem.lock);
 
   // set the reference count = 1
-  incr((uint64)r);
+  if(r)
+    incr((uint64)r);
 }
 
 // Allocate one 4096-byte page of physical memory.

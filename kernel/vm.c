@@ -345,6 +345,19 @@ err:
   return -1;
 }
 
+
+// mark a PTE invalid for user access.
+// used by exec for the user stack guard page.
+void uvmclear(pagetable_t pagetable, uint64 va)
+{
+  pte_t *pte;
+
+  pte = walk(pagetable, va, 0);
+  if (pte == 0)
+    panic("uvmclear");
+  *pte &= ~PTE_U;
+}
+
 // this method can only use when (*pte & PTE_COW) != 0
 // unmap the old mapping
 // alloc a new writable page for va,
@@ -362,6 +375,7 @@ int uvmcow(pagetable_t pgtbl, uint64 va)
     uint64 pa = PTE2PA(*pte);
     uint64 flags = PTE_FLAGS(*pte);
     flags &= (~PTE_COW);
+    flags |= (PTE_W);
     // alloc a new page
     char *mem;
     if ((mem = kalloc()) == 0)
@@ -370,7 +384,7 @@ int uvmcow(pagetable_t pgtbl, uint64 va)
 
     uvmunmap(pgtbl, va, 1, 1);
 
-    mappages(pgtbl, va, 1, pa, flags);
+    mappages(pgtbl, va, 1,(uint64) mem, flags);
   }
   else
   {
@@ -379,17 +393,6 @@ int uvmcow(pagetable_t pgtbl, uint64 va)
   return 0;
 }
 
-// mark a PTE invalid for user access.
-// used by exec for the user stack guard page.
-void uvmclear(pagetable_t pagetable, uint64 va)
-{
-  pte_t *pte;
-
-  pte = walk(pagetable, va, 0);
-  if (pte == 0)
-    panic("uvmclear");
-  *pte &= ~PTE_U;
-}
 
 // Copy from kernel to user.
 // Copy len bytes from src to virtual address dstva in a given page table.
@@ -401,12 +404,31 @@ int copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
   while (len > 0)
   {
     va0 = PGROUNDDOWN(dstva);
+
+     n = PGSIZE - (dstva - va0);
+    if(n > len)
+      n = len;
+
+    pte_t *pte;
+    if(dstva >= MAXVA)
+      return -1;
+    if((pte = walk(pagetable, dstva, 0)) == 0)
+    {
+      return -1;
+    }
+    if((*pte) & PTE_COW)
+    {
+      //printf("before cow: pte = %p\n", *pte);
+      if(uvmcow(pagetable, dstva) < 0)
+      {
+        panic("copyout: uvmcow");
+      }
+    }
+
     pa0 = walkaddr(pagetable, va0);
     if (pa0 == 0)
       return -1;
-    n = PGSIZE - (dstva - va0);
-    if (n > len)
-      n = len;
+
     memmove((void *)(pa0 + (dstva - va0)), src, n);
 
     len -= n;
